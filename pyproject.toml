@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nse-security-master"
+version = "0.1.0"
+description = "Permanent ISIN-keyed security master, ticker evolution history, and historical graveyard for Indian equities"
+authors = [{ name = "Prathmesh Gupta" }]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas>=2.0.0",
+    "pyarrow>=14.0.0",
+    "requests>=2.31.0",
+]
