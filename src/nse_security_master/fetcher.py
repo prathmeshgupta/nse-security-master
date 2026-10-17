@@ -36,6 +36,7 @@ class SecurityMasterFetcher:
             "FACE_VALUE": "face_value"
         }
         df = df.rename(columns=rename_map)
+        df["listing_date"] = pd.to_datetime(df["listing_date"], errors="coerce").dt.strftime("%Y-%m-%d").fillna(df["listing_date"])
         df["is_active"] = 1
         df["source"] = "NSE_EQUITY_L"
         return df
@@ -53,5 +54,6 @@ class SecurityMasterFetcher:
             "EFFECTIVE_DATE": "effective_date"
         }
         df = df.rename(columns=rename_map)
+        df["effective_date"] = pd.to_datetime(df["effective_date"], errors="coerce").dt.strftime("%Y-%m-%d").fillna(df["effective_date"])
         df["source"] = "NSE_SYMBOL_CHANGE"
         return df
