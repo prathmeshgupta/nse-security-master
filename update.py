@@ -48,15 +48,28 @@ def update():
 
     # 2. Update Symbol History
     print("[3/4] Updating symbol history...")
+    isin_map = dict(zip(merged_sm["current_symbol"], merged_sm["isin"]))
+    changes_df["isin"] = changes_df["new_symbol"].map(isin_map)
+
+    # Order columns consistently
+    cols = ["isin", "company_name", "old_symbol", "new_symbol", "effective_date", "source"]
+    for c in cols:
+        if c not in changes_df.columns:
+            changes_df[c] = None
+    changes_df = changes_df[cols]
+
     if SH_CSV.exists():
         existing_sh = pd.read_csv(SH_CSV)
-        combined_sh = pd.concat([existing_sh, changes_df], ignore_index=True)
+        # Ensure older rows without company_name get backfilled from changes_df
+        combined_sh = pd.concat([changes_df, existing_sh], ignore_index=True)
     else:
         combined_sh = changes_df.copy()
 
     combined_sh = combined_sh.dropna(subset=["old_symbol", "new_symbol", "effective_date"])
-    combined_sh = combined_sh.drop_duplicates(subset=["old_symbol", "new_symbol", "effective_date"])
-    combined_sh = combined_sh.sort_values("effective_date", ascending=False)
+    # Drop duplicates keeping the one with company_name
+    combined_sh = combined_sh.sort_values(by=["effective_date", "company_name"], ascending=[False, False])
+    combined_sh = combined_sh.drop_duplicates(subset=["old_symbol", "new_symbol", "effective_date"], keep="first")
+    combined_sh = combined_sh[cols]
 
     combined_sh.to_csv(SH_CSV, index=False)
     combined_sh.to_parquet(SH_PARQUET, index=False)
